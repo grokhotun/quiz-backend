@@ -5,10 +5,26 @@ const PORT = 5080;
 const app = express();
 
 const data = [
-  { id: 1, question: 'Как часто вы посещаете наш ресторан?' },
-  { id: 2, question: 'Что вам больше всего понравилось у нас?' },
-  { id: 3, question: 'Что вам не понравилось?' },
-  { id: 4, question: 'Что вы думаете о скорости и качестве обслуживания?' },
+  {
+    id: 1,
+    question: 'Как часто вы посещаете наш ресторан?',
+    options: ['Option1', 'Option2', 'Option3'],
+  },
+  {
+    id: 2,
+    question: 'Что вам больше всего понравилось у нас?',
+    options: ['Option1', 'Option2', 'Option3'],
+  },
+  {
+    id: 3,
+    question: 'Что вам не понравилось?',
+    options: ['Option1', 'Option2', 'Option3'],
+  },
+  {
+    id: 4,
+    question: 'Что вы думаете о скорости и качестве обслуживания?',
+    options: ['Option1', 'Option2', 'Option3'],
+  },
 ];
 
 const questionsIds = data.map(({ id }) => id);
@@ -26,7 +42,7 @@ routes.post('/api/answers/', (request, response) => {
     return response.json({
       message: 'Тело запроса обязательно',
       schemaExample: {
-        answers: [{ questionId: 'id вопроса', mark: 'оценка' }],
+        answers: [{ questionId: 'id вопроса', option: 'оценка' }],
       },
     });
   }
@@ -35,26 +51,17 @@ routes.post('/api/answers/', (request, response) => {
   const allAnswersAreAnswered = questionsIds.every((id) =>
     answeredQuestionsIds.includes(id),
   );
-  const allMarksAreCorrect = answers.every(
-    ({ mark }) => mark >= 1 && mark <= 5,
-  );
+
   const amountOfAnswersIsCorrect = answers.length === data.length;
 
-  const cantProceedReasons = [
-    [!amountOfAnswersIsCorrect, 'AMOUNT_ERROR'],
-    [!allAnswersAreAnswered, 'MISSING_ANSWERS_ERROR'],
-    [!allMarksAreCorrect, 'MARK_ERROR'],
-  ];
-
   const [cantProceed, errorType] =
-    cantProceedReasons.filter(([condition]) => condition)[0] || [];
+    [
+      [!amountOfAnswersIsCorrect, 'AMOUNT_ERROR'],
+      [!allAnswersAreAnswered, 'MISSING_ANSWERS_ERROR'],
+    ].filter(([condition]) => condition)[0] || [];
 
   if (cantProceed) {
     const ids = questionsIds.filter((id) => !answeredQuestionsIds.includes(id));
-
-    const wrongAnswers = answers
-      .filter(({ mark }) => mark > 5 || mark < 1)
-      .map(({ questionId }) => questionId);
 
     switch (errorType) {
       case 'AMOUNT_ERROR':
@@ -65,13 +72,6 @@ routes.post('/api/answers/', (request, response) => {
       case 'MISSING_ANSWERS_ERROR':
         return response.json({
           message: `Не хватает ответов на вопросы ${ids.join(', ')}`,
-        });
-
-      case 'MARK_ERROR':
-        return response.json({
-          message: `В ответах c id ${wrongAnswers.join(
-            ', ',
-          )} неверно выставлены оценки. Допустимые значения: 1-5`,
         });
 
       default:
