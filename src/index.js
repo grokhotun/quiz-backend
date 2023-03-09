@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 
 const PORT = 5080;
+const USERNAME = 'test';
+const PASSWORD = 'test';
+const TOKEN = 'some super random secure token';
 const app = express();
 
 const data = [
@@ -31,7 +34,22 @@ const questionsIds = data.map(({ id }) => id);
 
 const routes = express.Router();
 
+const isAuth = (request) => {
+  const authorization = request.headers['authorization'];
+
+  if (!authorization) return false;
+
+  const [, token] = authorization.split(':').map((v) => v.trim());
+
+  if (token !== TOKEN) return false;
+
+  return true;
+};
+
 routes.get('/api/questions/', (request, response) => {
+  if (!isAuth(request))
+    return response.status(401).send({ message: 'Не авторизован' });
+
   return response.json(data);
 });
 
@@ -82,6 +100,17 @@ routes.post('/api/answers/', (request, response) => {
   return response.json({
     message: 'Ваши ответы приняты',
   });
+});
+
+routes.post('/api/login/', (request, response) => {
+  const { username, password } = request.body;
+
+  if (username !== USERNAME || password !== PASSWORD)
+    return response.status(400).send({
+      message: 'Неверно имя пользователя или пароль',
+    });
+
+  return response.json({ jwt: TOKEN });
 });
 
 app.use(
