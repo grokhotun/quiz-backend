@@ -10,23 +10,39 @@ const app = express();
 const data = [
   {
     id: 1,
-    question: 'Как часто вы посещаете наш ресторан?',
-    options: ['Option1', 'Option2', 'Option3'],
+    title: 'Как часто вы посещаете наш ресторан?',
+    options: [
+      { id: 1, title: 'Option1' },
+      { id: 2, title: 'Option2' },
+      { id: 3, title: 'Option2' },
+    ],
   },
   {
     id: 2,
-    question: 'Что вам больше всего понравилось у нас?',
-    options: ['Option1', 'Option2', 'Option3'],
+    title: 'Что вам больше всего понравилось у нас?',
+    options: [
+      { id: 1, title: 'Option1' },
+      { id: 2, title: 'Option2' },
+      { id: 3, title: 'Option3' },
+    ],
   },
   {
     id: 3,
-    question: 'Что вам не понравилось?',
-    options: ['Option1', 'Option2', 'Option3'],
+    title: 'Что вам не понравилось?',
+    options: [
+      { id: 1, title: 'Option1' },
+      { id: 2, title: 'Option2' },
+      { id: 3, title: 'Option3' },
+    ],
   },
   {
     id: 4,
-    question: 'Что вы думаете о скорости и качестве обслуживания?',
-    options: ['Option1', 'Option2', 'Option3'],
+    title: 'Что вы думаете о скорости и качестве обслуживания?',
+    options: [
+      { id: 1, title: 'Option1' },
+      { id: 2, title: 'Option2' },
+      { id: 3, title: 'Option3' },
+    ],
   },
 ];
 
@@ -48,7 +64,7 @@ const isAuth = (request) => {
 
 routes.get('/api/questions/', (request, response) => {
   if (!isAuth(request))
-    return response.status(401).send({ message: 'Не авторизован' });
+    return response.status(401).json({ message: 'Не авторизован' });
 
   return response.json(data);
 });
@@ -106,7 +122,7 @@ routes.post('/api/login/', (request, response) => {
   const { username, password } = request.body;
 
   if (username !== USERNAME || password !== PASSWORD)
-    return response.status(400).send({
+    return response.status(400).json({
       message: 'Неверно имя пользователя или пароль',
     });
 
